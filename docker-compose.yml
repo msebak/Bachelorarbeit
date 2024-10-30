@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  
+  postgres:
+    image: postgres:13
+    #volumes:
+      #- postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: Techgallery
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: marwan
+    ports:
+      - "5432:5432"
+    networks:
+      - my_network
+    
+
+  django:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    #volumes:
+     # - ../backend:/app
+    depends_on:
+      - postgres
+    environment:
+      DEBUG: '1'
+      DJANGO_SECRET_KEY: 'django-insecure-u18juf91bzgj-+lnw(q3t1ib-mxqq_cel_xih+1%(#uaxnp#1s'
+      SQL_ENGINE: 'django.db.backends.postgresql'
+      SQL_DATABASE: 'Techgallery'
+      SQL_USER: 'postgres'
+      SQL_PASSWORD: 'marwan'
+      SQL_HOST: 'postgres'
+      SQL_PORT: '5432'
+    ports:
+      - "8000:8000"
+    networks:
+      - my_network
+
+  react:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    #volumes:
+      #- ../frontend:/app
+    ports:
+      - "3000:3000"
+    networks:
+      - my_network
+    depends_on:
+      - django
+
+volumes:
+  postgres_data:
+
+networks:
+  my_network:
+    driver: bridge
